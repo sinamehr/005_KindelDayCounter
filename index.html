@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<meta name="color-scheme" content="light only">
+	<title>Project Day Counter</title>
+	<style>
+		:root {
+			--bg: #fff;
+			--fg: #000;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			background: var(--bg);
+			color: var(--fg);
+			font-family: Helvetika, Helvetica, Arial, sans-serif;
+			overflow: hidden;
+		}
+
+		body {
+			display: block;
+			position: relative;
+		}
+
+		.app {
+			width: 100vw;
+			height: 100vh;
+			border: 5px solid #000;
+			padding: 1rem;
+			display: grid;
+			place-items: center;
+			background: #fff;
+			transform-origin: center center;
+		}
+
+		.metric-box {
+			width: 100%;
+			height: 100%;
+			display: grid;
+			place-items: center;
+			text-align: center;
+			padding: 1rem;
+		}
+
+		.metric-label {
+			font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+			text-transform: uppercase;
+			font-weight: 700;
+			letter-spacing: 0.05em;
+		}
+
+		.metric-value {
+			font-size: clamp(3rem, 15vw, 10rem);
+			line-height: 1;
+			font-weight: 700;
+			margin: 0.4rem 0;
+		}
+
+		.metric-sub {
+			font-size: clamp(1rem, 2.2vw, 1.45rem);
+			font-weight: 700;
+		}
+
+		.error {
+			border: 5px solid #000;
+			padding: 1rem;
+			text-align: center;
+			font-size: clamp(1rem, 2.8vw, 1.5rem);
+			font-weight: 700;
+		}
+
+		@media (orientation: portrait) {
+			.app {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 100vh;
+				height: 100vw;
+				transform: translate(-50%, -50%) rotate(90deg);
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="app" id="app">
+		<section class="metric-box" aria-live="polite">
+			<div>
+				<div class="metric-label" id="metricLabel">PhD persentage</div>
+				<div class="metric-value" id="metricValue">0.0%</div>
+				<div class="metric-sub" id="metricSub"> </div>
+			</div>
+		</section>
+	</main>
+
+	<script>
+		// Embedded project data (edit these values only).
+		const projectConfig = {
+			startDate: "2026-01-15",
+			deadlineDate: "2029-01-14"
+		};
+
+		const dayMs = 24 * 60 * 60 * 1000;
+		const modes = ["passed", "progress", "remaining"];
+
+		function parseIsoDate(isoDate) {
+			const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+			if (!match) {
+				return null;
+			}
+			const year = Number(match[1]);
+			const monthIndex = Number(match[2]) - 1;
+			const day = Number(match[3]);
+			const date = new Date(year, monthIndex, day);
+			if (
+				date.getFullYear() !== year ||
+				date.getMonth() !== monthIndex ||
+				date.getDate() !== day
+			) {
+				return null;
+			}
+			return date;
+		}
+
+		function startOfTodayLocal() {
+			const now = new Date();
+			return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		}
+
+		function diffDays(fromDate, toDate) {
+			return Math.floor((toDate - fromDate) / dayMs);
+		}
+
+		function formatPercent(value) {
+			return value.toFixed(1) + "%";
+		}
+
+		function activeModeByHour(date) {
+			return modes[date.getHours() % modes.length];
+		}
+
+		function renderError(message) {
+			const app = document.getElementById("app");
+			app.innerHTML = "<div class=\"error\">" + message + "</div>";
+		}
+
+		function calculateProgress(startDate, deadlineDate, todayDate) {
+			const rawTotal = diffDays(startDate, deadlineDate);
+			const totalDays = Math.max(1, rawTotal);
+
+			let elapsedDays;
+			let remainingDays;
+
+			if (todayDate <= startDate) {
+				elapsedDays = 0;
+				remainingDays = totalDays;
+			} else if (todayDate >= deadlineDate) {
+				elapsedDays = totalDays;
+				remainingDays = 0;
+			} else {
+				elapsedDays = diffDays(startDate, todayDate);
+				remainingDays = diffDays(todayDate, deadlineDate);
+			}
+
+			const passedRatio = Math.min(1, Math.max(0, elapsedDays / totalDays));
+			const passedPercent = passedRatio * 100;
+			const remainingPercent = 100 - passedPercent;
+
+			return {
+				totalDays,
+				elapsedDays,
+				remainingDays,
+				passedPercent,
+				remainingPercent
+			};
+		}
+
+		function render() {
+			const startDate = parseIsoDate(projectConfig.startDate);
+			const deadlineDate = parseIsoDate(projectConfig.deadlineDate);
+
+			if (!startDate || !deadlineDate) {
+				renderError("Invalid date format. Use yyyy-mm-dd.");
+				return;
+			}
+			if (deadlineDate < startDate) {
+				renderError("Deadline must be on or after start date.");
+				return;
+			}
+
+			const today = startOfTodayLocal();
+			const result = calculateProgress(startDate, deadlineDate, today);
+			const mode = activeModeByHour(new Date());
+
+			const metricLabel = document.getElementById("metricLabel");
+			const metricValue = document.getElementById("metricValue");
+			const metricSub = document.getElementById("metricSub");
+
+			if (mode === "passed") {
+				metricLabel.textContent = "PhD days passed";
+				metricValue.textContent = String(result.elapsedDays);
+				metricSub.textContent = "";
+			} else if (mode === "progress") {
+				metricLabel.textContent = "PhD persentage";
+				metricValue.textContent = formatPercent(result.passedPercent);
+				metricSub.textContent = "";
+			} else {
+				metricLabel.textContent = "PhD days remianin";
+				metricValue.textContent = String(result.remainingDays);
+				metricSub.textContent = "";
+			}
+		}
+
+		render();
+		setInterval(render, 60 * 60 * 1000);
+	</script>
+</body>
+</html>
