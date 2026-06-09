@@ -9,7 +9,6 @@
 		:root {
 			--bg: #fff;
 			--fg: #000;
-			--font-scale: 3;
 		}
 
 		* {
@@ -29,19 +28,18 @@
 		}
 
 		body {
-			display: block;
-			position: relative;
+			display: flex;
 		}
 
 		.app {
 			width: 100vw;
 			height: 100vh;
 			border: 3px solid #000;
-			padding: 0.3rem;
-			display: grid;
-			place-items: center;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			background: #fff;
-			transform-origin: center center;
 		}
 
 		.metric-box {
@@ -51,7 +49,7 @@
 			align-items: center;
 			justify-content: center;
 			text-align: center;
-			padding: 0;
+			padding: 1.2rem;
 		}
 
 		.metric-stack {
@@ -60,22 +58,24 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			justify-content: space-evenly;
+			justify-content: center;
+			gap: 2rem;
 		}
 
 		.metric-label {
-			font-size: clamp(calc(1.8rem * var(--font-scale)), calc(5.2vw * var(--font-scale)), calc(4.8rem * var(--font-scale)));
+			font-size: 64px;
 			text-transform: uppercase;
 			font-weight: 700;
-			letter-spacing: 0.03em;
-			line-height: 1.04;
+			letter-spacing: 0;
+			line-height: 1.1;
 		}
 
 		.metric-value {
-			font-size: clamp(calc(5rem * var(--font-scale)), calc(30vw * var(--font-scale)), calc(26rem * var(--font-scale)));
+			font-size: 240px;
 			line-height: 1;
 			font-weight: 700;
 			margin: 0;
+			white-space: nowrap;
 		}
 
 		.metric-sub {
@@ -86,18 +86,27 @@
 			border: 5px solid #000;
 			padding: 1rem;
 			text-align: center;
-			font-size: clamp(1rem, 2.8vw, 1.5rem);
+			font-size: 32px;
 			font-weight: 700;
 		}
 
-		@media (orientation: portrait) {
-			.app {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				width: 100vh;
-				height: 100vw;
-				transform: translate(-50%, -50%) rotate(90deg);
+		@media (max-width: 1200px) {
+			.metric-label {
+				font-size: 48px;
+			}
+
+			.metric-value {
+				font-size: 180px;
+			}
+		}
+
+		@media (max-width: 900px) {
+			.metric-label {
+				font-size: 36px;
+			}
+
+			.metric-value {
+				font-size: 128px;
 			}
 		}
 	</style>
@@ -161,6 +170,12 @@
 			return modes[step % modes.length];
 		}
 
+		function scheduleReload() {
+			window.setTimeout(function () {
+				window.location.reload();
+			}, modeSwitchMs);
+		}
+
 		function renderError(message) {
 			const app = document.getElementById("app");
 			app.innerHTML = "<div class=\"error\">" + message + "</div>";
@@ -216,25 +231,21 @@
 
 			const metricLabel = document.getElementById("metricLabel");
 			const metricValue = document.getElementById("metricValue");
-			const metricSub = document.getElementById("metricSub");
 
 			if (mode === "passed") {
 				metricLabel.textContent = "PhD days passed";
 				metricValue.textContent = String(result.elapsedDays);
-				metricSub.textContent = "";
 			} else if (mode === "progress") {
 				metricLabel.textContent = "PhD persentage";
 				metricValue.textContent = formatPercent(result.passedPercent);
-				metricSub.textContent = "";
 			} else {
 				metricLabel.textContent = "PhD days remianin";
 				metricValue.textContent = String(result.remainingDays);
-				metricSub.textContent = "";
 			}
 		}
 
 		render();
-		setInterval(render, modeSwitchMs);
+		scheduleReload();
 	</script>
 </body>
 </html>
