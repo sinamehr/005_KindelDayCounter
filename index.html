@@ -28,18 +28,23 @@
 		}
 
 		body {
-			display: flex;
+			position: relative;
 		}
 
 		.app {
-			width: 100vw;
-			height: 100vh;
-			border: 3px solid #000;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 100vh;
+			height: 100vw;
+			border: 0;
 			padding: 0;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			background: #fff;
+			transform: translate(-50%, -50%) rotate(90deg);
+			transform-origin: center center;
 		}
 
 		.metric-box {
@@ -49,7 +54,7 @@
 			align-items: center;
 			justify-content: center;
 			text-align: center;
-			padding: 1.2rem;
+			padding: 0;
 		}
 
 		.metric-stack {
@@ -58,24 +63,28 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			justify-content: center;
-			gap: 2rem;
+			justify-content: space-evenly;
+			gap: 0;
 		}
 
 		.metric-label {
-			font-size: 64px;
+			width: 100%;
+			padding: 0 1vw;
+			font-size: 10vh;
 			text-transform: uppercase;
 			font-weight: 700;
 			letter-spacing: 0;
-			line-height: 1.1;
+			line-height: 0.95;
 		}
 
 		.metric-value {
-			font-size: 240px;
-			line-height: 1;
+			width: 100%;
+			font-size: 42vh;
+			line-height: 0.9;
 			font-weight: 700;
 			margin: 0;
 			white-space: nowrap;
+			overflow: hidden;
 		}
 
 		.metric-sub {
@@ -90,25 +99,6 @@
 			font-weight: 700;
 		}
 
-		@media (max-width: 1200px) {
-			.metric-label {
-				font-size: 48px;
-			}
-
-			.metric-value {
-				font-size: 180px;
-			}
-		}
-
-		@media (max-width: 900px) {
-			.metric-label {
-				font-size: 36px;
-			}
-
-			.metric-value {
-				font-size: 128px;
-			}
-		}
 	</style>
 </head>
 <body>
