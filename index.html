@@ -23,7 +23,7 @@
 			height: 100vh;
 			background: var(--bg);
 			color: var(--fg);
-			font-family: Helvetika, Helvetica, Arial, sans-serif;
+			font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
 			overflow: hidden;
 		}
 
@@ -63,28 +63,28 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			justify-content: space-evenly;
-			gap: 0;
+			justify-content: center;
+			gap: 1.2vh;
 		}
 
 		.metric-label {
 			width: 100%;
 			padding: 0 1vw;
-			font-size: 10vh;
-			text-transform: uppercase;
+			font-size: 8.5vh;
 			font-weight: 700;
 			letter-spacing: 0;
-			line-height: 0.95;
+			line-height: 0.92;
 		}
 
 		.metric-value {
 			width: 100%;
-			font-size: 42vh;
+			padding: 0 2vw;
+			font-size: 34vh;
 			line-height: 0.9;
 			font-weight: 700;
 			margin: 0;
 			white-space: nowrap;
-			overflow: hidden;
+			overflow: visible;
 		}
 
 		.metric-sub {
@@ -223,13 +223,13 @@
 			const metricValue = document.getElementById("metricValue");
 
 			if (mode === "passed") {
-				metricLabel.textContent = "PhD days passed";
+				metricLabel.textContent = "PhD Days Passed";
 				metricValue.textContent = String(result.elapsedDays);
 			} else if (mode === "progress") {
-				metricLabel.textContent = "PhD persentage";
+				metricLabel.textContent = "PhD Percentage";
 				metricValue.textContent = formatPercent(result.passedPercent);
 			} else {
-				metricLabel.textContent = "PhD days remianin";
+				metricLabel.textContent = "PhD Days Remaining";
 				metricValue.textContent = String(result.remainingDays);
 			}
 		}
