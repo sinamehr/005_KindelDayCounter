@@ -9,7 +9,7 @@
 		:root {
 			--bg: #fff;
 			--fg: #000;
-			--font-scale: 4;
+			--font-scale: 3;
 		}
 
 		* {
@@ -122,6 +122,7 @@
 
 		const dayMs = 24 * 60 * 60 * 1000;
 		const modes = ["passed", "progress", "remaining"];
+		const modeSwitchMs = 5000;
 
 		function parseIsoDate(isoDate) {
 			const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
@@ -155,8 +156,9 @@
 			return value.toFixed(1) + "%";
 		}
 
-		function activeModeByHour(date) {
-			return modes[date.getHours() % modes.length];
+		function activeModeForTest(date) {
+			const step = Math.floor(date.getTime() / modeSwitchMs);
+			return modes[step % modes.length];
 		}
 
 		function renderError(message) {
@@ -210,7 +212,7 @@
 
 			const today = startOfTodayLocal();
 			const result = calculateProgress(startDate, deadlineDate, today);
-			const mode = activeModeByHour(new Date());
+			const mode = activeModeForTest(new Date());
 
 			const metricLabel = document.getElementById("metricLabel");
 			const metricValue = document.getElementById("metricValue");
@@ -232,7 +234,7 @@
 		}
 
 		render();
-		setInterval(render, 60 * 60 * 1000);
+		setInterval(render, modeSwitchMs);
 	</script>
 </body>
 </html>
